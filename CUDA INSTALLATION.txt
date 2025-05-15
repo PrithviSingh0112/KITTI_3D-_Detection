@@ -1,0 +1,403 @@
+﻿CUDA INSTALLATION
+
+
+
+
+Part 1: CUDA Toolkit Installation (v11.8 on Ubuntu 20.04)
+Step 1: Check System Compatibility
+Refer to: https://docs.nvidia.com/cuda/archive/11.8.0/cuda-installation-guide-linux/index.html#ubuntu-installation
+Step 2: Download CUDA Toolkit
+Go to: https://developer.nvidia.com/cuda-11-8-0-download-archive
+Choose the following options:
+* Operating System: Linux
+* Architecture: x86_64
+* Distribution: Ubuntu
+* Version: 20.04
+* Installer Type: Deb (local) — or choose .run/.deb(network) if preferred
+Copy and paste each link (base installer and patches) into the terminal in the provided order.
+________________
+ 
+Step 3: Post-Installation Environment Setup
+Add to PATH:
+export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
+Add to LD_LIBRARY_PATH (64-bit systems):
+export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+
+
+________________
+
+
+Step 4: Reboot and Verify CUDA Installation
+After completing installation and environment variable setup, reboot your system:
+* sudo reboot
+* Check if CUDA is installed:
+* nvcc -V           # Verifies CUDA compiler version
+* nvidia-smi        # Verifies GPU and driver status
+* which nvcc        # Shows path to CUDA compiler
+* echo $PATH        # Check if CUDA path is in PATH
+You can also compile and run sample programs from /usr/local/cuda-11.8/samples/ to verify functionality.
+________________
+
+
+
+
+
+
+
+
+Part2. cuDNN v8.7.0 Installation Guide for CUDA 11.8
+Copy and paste each link (base installer and patches) into the terminal in the provided order.
+
+
+________________
+
+
+Step 1: Register on NVIDIA Developer Website
+Sign up at:
+ https://developer.nvidia.com/developer-program/signup
+ (Required to download cuDNN)
+________________
+
+
+Step 2: Download cuDNN tar file for CUDA 11.8
+* CUDNN_TAR_FILE="cudnn-linux-x86_64-8.7.0.84_cuda11-archive.tar.xz"
+* sudo wget https://developer.download.nvidia.com/compute/redist/cudnn/v8.7.0/local_installers/11.8/${CUDNN_TAR_FILE}
+
+
+________________
+
+
+Step 3: Extract the Archive
+sudo tar -xvf ${CUDNN_TAR_FILE}
+sudo mv cudnn-linux-x86_64-8.7.0.84_cuda11-archive cuda
+
+
+________________
+
+
+Step 4: Copy cuDNN Files into CUDA Toolkit Directories
+* sudo cp -P cuda/include/cudnn.h /usr/local/cuda-11.8/include
+* sudo cp -P cuda/lib/libcudnn* /usr/local/cuda-11.8/lib64/
+* sudo chmod a+r /usr/local/cuda-11.8/lib64/libcudnn*
+
+
+________________
+
+
+Step 5: Verify Installation
+* nvidia-smi     # Check NVIDIA driver and GPU status
+* nvcc -V        # Check CUDA compiler version
+
+
+________________
+
+
+
+
+Part 3:PyTorch Installation with CUDA and Conda Environment Setup in VS Code
+Copy and paste each link (base installer and patches) into the terminal in the provided order.
+
+
+________________
+
+
+Step 1: Create a Conda Environment
+1. Create the environment (replace myenv with your preferred name):
+
+   * conda create -n myenv python=3.10
+
+
+   2. Activate the environment:
+
+      * conda activate myenv
+
+
+________________
+
+
+Step 2: Install PyTorch with CUDA Support
+Visit: https://pytorch.org/get-started/locally/ to get the latest install command.
+For CUDA 11.8, use:
+      * conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+
+
+________________
+
+
+Step 3: Verify PyTorch GPU Access
+Inside the activated environment, run Python and test:
+      * import torch
+      * print(torch.__version__)
+      * print(torch.cuda.is_available())
+      * print(torch.cuda.get_device_name(0))  # if GPU is available
+
+
+________________
+
+
+Step 4: Configure VS Code for Conda Environment
+      1. Install VS Code and Python Extension (if not already installed).
+
+      2. Open your project folder in VS Code.
+
+      3. Open the Command Palette (Ctrl+Shift+P) and search:
+
+Python: Select Interpreter
+
+
+         4. Choose the interpreter that matches your conda environment (e.g., myenv).
+
+If not listed, you may need to manually add conda to your VS Code terminal environment or restart VS Code.
+________________
+
+
+Optional: Set Default Terminal to Conda
+In VS Code settings (settings.json), you can add:
+"terminal.integrated.env.linux": {
+    "CONDA_DEFAULT_ENV": "myenv",
+    "PATH": "/home/your-user/miniconda3/envs/myenv/bin:${env:PATH}"
+Replace /home/your-user and myenv with your actual values
+
+
+STEPS MODEL TRAINING
+Part4:-OpenPCDet Setup Guide (Post PyTorch + CUDA + Conda Setup)
+Copy and paste each link (base installer and patches) into the terminal in the provided order.
+
+
+________________
+
+
+Step 1: Clone the OpenPCDet Repository
+            * git clone https://github.com/open-mmlab/OpenPCDet.git
+            * cd OpenPCDet
+
+
+________________
+
+
+Step 2: Create and Activate the Conda Environment
+(If not already done during PyTorch setup)
+            * conda create -n openpcdet python=3.10 -y
+            * conda activate openpcdet
+
+
+________________
+
+
+Step 3: Install PyTorch with CUDA (if not already installed)
+            * conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+
+
+________________
+
+
+Step 4: Install Required Dependencies
+            * pip install -r requirements.txt
+
+
+________________
+
+
+Step 5: Compile OpenPCDet
+            * python setup.py develop
+
+
+If you face compiler issues, make sure your nvcc -V and nvidia-smi outputs match the expected CUDA version (11.8).
+
+
+________________
+
+
+Step 6: Train SECOND Model on KITTI Dataset
+6.1: Download KITTI Dataset
+            * Download the KITTI 3D Object Detection dataset from:
+ http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d
+
+            * Required parts: training velodyne, label_2, calib, and image_2 folders.
+
+6.2: Organize the Dataset Directory
+Place data in this format:
+OpenPCDet/
+├── data/
+│   └── kitti/
+│       ├── ImageSets/
+│       ├── training/
+│       │   ├── calib/
+│       │   ├── image_2/
+│       │   ├── label_2/
+│       │   └── velodyne/
+│       └── testing/
+│           └── velodyne/
+
+
+You can generate dataset infos using the provided script:
+               * python -m pcdet.datasets.kitti.kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/kitti_dataset.yaml
+
+
+Path for dataset configs:
+
+
+tools->cfgs->dataset_configs->kitti_dataset.yaml
+
+
+6.3: Start Training SECOND Model
+               * python train.py --cfg_file cfgs/kitti_models/second.yaml
+
+
+               * Training logs will be saved in output/kitti_models/second/.
+
+________________
+
+
+Optional: Set Up in VS Code
+                  * Open the project folder in VS Code.
+
+                  * Select the openpcdet conda interpreter from the Command Palette (Ctrl+Shift+P → Python: Select Interpreter).
+
+________________
+
+
+Note: Make sure your CUDA and cuDNN installations are properly configured in your environment path before building. Refer to the CUDA/cuDNN guide for environment variable setup if needed.
+
+
+
+
+
+
+
+
+Part 5: LiDAR Fog Simulation Setup Guide using LiDAR_fog_sim
+Copy and paste each link (base installer and patches) into the terminal in the provided order.
+
+
+________________
+
+
+Step 1: Install Anaconda
+Download and install Anaconda from https://www.anaconda.com/products/distribution (choose the version compatible with your OS).
+________________
+
+
+Step 2: Create and Activate a Conda Environment
+                     * conda create --name foggy_lidar python=3.9 -y
+                     * conda activate foggy_lidar
+
+
+________________
+
+
+Step 3: Install Necessary Packages
+                     * conda install matplotlib numpy opencv pandas plyfile pyopengl pyqt pyqtgraph quaternion scipy tqdm -c conda-forge -y
+                     * pip install pyquaternion
+
+
+________________
+
+
+Step 4: Clone the Repository (with Submodules)
+                     * git clone git@github.com:MartinHahner/LiDAR_fog_sim.git --recursive
+                     * cd LiDAR_fog_sim
+
+
+________________
+
+
+Step 5: Run Theory Visualization
+Visualizes the theory behind a single LiDAR beam in foggy conditions:
+                     * python theory.py
+
+
+________________
+
+
+Step 6: Visualize Full Point Clouds
+Copy and paste each command into the terminal in the provided order.
+
+
+Run the point cloud viewer with your dataset directory:
+                     * python pointcloud_viewer.py -d <path_to_where_you_store_your_datasets>
+                     * Under choose custom directory substitute the path as /home/aniket/LiDAR_fog_sim/KITTI/3D/velodyne
+
+
+⚠️ You may need to adjust the relative paths at the beginning of pointcloud_viewer.py based on your dataset folder structure.
+
+
+STEPS FOR MIE THEORY BASAED ALPHA AND BETA VALUE GENERATION AND SUBSEQUENT EXTRACTION OF FOG LIDAR DATA:
+TO change the values of alpha and beta refer the below image. For simulating fog select fog_simulation.py and under that script update the highlighted part accordingly.
+  
+
+
+
+For generation of pickle file under the original folder of integral_lookup_tables for selected values of alpha for example alpha = 0.0289.
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+After Genratting lookup table the for given alpha values. Substitute respective alpha and beta values in the fog_simulation.py script At line number 354.
+  
+
+
+
+STEPS FOR CREATION OF POINTCLOUD GUI:
+Open pointcloud_viewer.py file to view point cloud GUI.
+Replace QtGUI at line number 32 and 1880 with QtWidgets
+  
+
+STEPS FOR SYNTHETIC DATA GENERATION:
+Copy and paste each command into the terminal in the provided order.
+                     * conda activate foggy_lidar
+                     * Python fog_simulation.py
+  
+
+
+
+________________
+
+
+VS Code Setup (Optional)
+                     * Open the folder in VS Code.
+
+                     * Select the foggy_lidar conda environment via Command Palette → Python: Select Interpreter.
+
+________________
+
+
+Compatibility
+The code has been successfully tested on:
+                        * Ubuntu 18.04.5 LTS
+
+                        * macOS Big Sur 11.2.1
+
+                        * Debian GNU/Linux 9.13
+(using conda 4.9.2)
+
+________________
+
+
+Note: Ensure your CUDA/GPU drivers are properly configured if using any GPU-accelerated post-processing or visualizations.
