@@ -69,7 +69,7 @@ jupyter notebook KITTI_3D_DetectionUsing FPN+Resenet.ipynb
 
 ---
 ## 📹 Demonstration
-![Demo Video](demo.mp4)
+![Demo Video](demo.gif)
 ## 📄 License
 
 This project is intended for academic and research use only. For commercial use, please contact the author.
